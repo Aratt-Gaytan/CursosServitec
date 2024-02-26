@@ -26,6 +26,10 @@ namespace CursosServitec.Controllers
         {
             return View();
         }
+        public ActionResult Restringido()
+        {
+            return View();
+        }
 
         [HttpPost]
         public ActionResult Registrar(usuario oUsuario)
@@ -95,37 +99,44 @@ namespace CursosServitec.Controllers
                 cn.Open();
 
                 // Ejecutar el comando y obtener el resultado
-                object result = ValidarUsuario.ExecuteScalar();
+                //object result = ValidarUsuario.ExecuteScalar();
 
-                // Verificar si el resultado no es nulo antes de convertirlo
-                if (result != null)
+                SqlDataReader reader = ValidarUsuario.ExecuteReader();
+
+                int idUsuario = 0;
+                int tipoUsuarioId = 0;
+
+                if (reader.Read())
                 {
-                    oUsuario.idUsuario = Convert.ToInt32(result);
+                    // Obtener los valores de las columnas
+                    idUsuario = reader.GetInt32(0);
+                    tipoUsuarioId = reader.GetInt32(1);
                 }
-                else
-                {
-                    // Manejar el caso en que no se devuelve ningún valor
-                }
+                reader.Close(); // Cerrar el lector
 
                 // Cerrar la conexión
                 cn.Close();
 
 
-            }
 
-            if (oUsuario.idUsuario != 0)
-            {
-                Session["usuario"] = oUsuario;
-                return RedirectToAction("Index", "Home");
-            }
-            else
-            {
-                ViewData["Mensaje"] = "Usuario no encontrado";
-                return View();
+
+                if (idUsuario != 0)
+                {
+                    // Asignar los valores a las sesiones
+                    Session["usuario"] = idUsuario;
+                    Session["tipoUsuario"] = tipoUsuarioId;
+
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    ViewData["Mensaje"] = "Usuario no encontrado";
+                    return View();
+                }
+
             }
 
         }
-
 
         public static string Convertirsha256(string texto)
         {

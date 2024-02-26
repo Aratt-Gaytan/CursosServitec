@@ -13,8 +13,21 @@ namespace CursosServitec.Controllers
             {
                 filterContext.Result = new RedirectResult("~/Acceso/Login");
             }
+                base.OnActionExecuting(filterContext);
+        }
+    }
 
-            base.OnActionExecuting(filterContext);
+    public class ValidarSesionAdminAttribute : ActionFilterAttribute
+    {
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+
+            if (HttpContext.Current.Session["usuario"] != null && (HttpContext.Current.Session["tipoUsuario"].ToString() == "2" || HttpContext.Current.Session["tipoUsuario"].ToString() == "1"))
+            {
+                base.OnActionExecuting(filterContext);
+            }
+            filterContext.Result = new RedirectResult("~/Acceso/Restringido");
+            
         }
     }
 }
